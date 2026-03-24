@@ -1,45 +1,36 @@
 /**
  * ============================================================
- * MAIN CLASS - UseCase7AddOnServiceSelection
+ * MAIN CLASS - UseCase8BookingHistoryReport
  * ============================================================
  *
- * Use Case 7: Add-On Service Selection
+ * Use Case 8: Booking History & Reporting
  *
  * Description:
- * This class demonstrates how optional
- * services can be attached to a confirmed
- * booking.
+ * This class demonstrates how
+ * confirmed bookings are stored
+ * and reported.
  *
- * Services are added after room allocation
- * and do not affect inventory.
+ * The system maintains an ordered
+ * audit trail of reservations.
  *
- * @version 7.0
+ * @version 8.0
  */
 public class BookMyStayApp {
 
     public static void main(String[] args) {
 
-        System.out.println("Add-On Service Selection");
+        System.out.println("Booking History and Reporting");
 
-        // Example reservation ID (from previous use case)
-        String reservationId = "Single-1";
+        // Step 1: Create booking history
+        BookingHistory history = new BookingHistory();
 
-        // Initialize service manager
-        AddOnServiceManager serviceManager = new AddOnServiceManager();
+        // Step 2: Add confirmed reservations
+        history.addReservation(new Reservation("Abhi", "Single"));
+        history.addReservation(new Reservation("Subha", "Double"));
+        history.addReservation(new Reservation("Vanmathi", "Suite"));
 
-        // Create services
-        AddOnService breakfast = new AddOnService("Breakfast", 500.0);
-        AddOnService spa = new AddOnService("Spa", 1000.0);
-
-        // Attach services
-        serviceManager.addService(reservationId, breakfast);
-        serviceManager.addService(reservationId, spa);
-
-        // Calculate total cost
-        double totalCost = serviceManager.calculateTotalServiceCost(reservationId);
-
-        // Output
-        System.out.println("Reservation ID: " + reservationId);
-        System.out.println("Total Add-On Cost: " + totalCost);
+        // Step 3: Generate report
+        BookingReportService reportService = new BookingReportService();
+        reportService.generateReport(history);
     }
 }
