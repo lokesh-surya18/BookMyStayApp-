@@ -1,48 +1,70 @@
 /**
  * ============================================================
- * MAIN CLASS - UseCase10BookingCancellation
+ * MAIN CLASS - UseCase11ConcurrentBookingSimulation
  * ============================================================
  *
- * Use Case 10: Booking Cancellation & Inventory Rollback
+ * Use Case 11: Concurrent Booking Simulation
  *
  * Description:
- * This class demonstrates how confirmed
- * bookings can be cancelled safely.
+ * Simulates multiple users attempting to
+ * book rooms at the same time.
  *
- * Inventory is restored and rollback
- * history is maintained.
+ * Demonstrates how synchronization prevents
+ * inconsistent allocations.
  *
- * @version 10.0
+ * @version 11.0
  */
 public class BookMyStayApp {
 
     public static void main(String[] args) {
 
-        System.out.println("Booking Cancellation");
+        System.out.println("Concurrent Booking Simulation");
 
-        // Step 1: Initialize inventory
+        // Step 1: Shared resources
         RoomInventory inventory = new RoomInventory();
+        BookingRequestQueue bookingQueue = new BookingRequestQueue();
+        RoomAllocationService allocationService = new RoomAllocationService();
 
-        // Step 2: Initialize cancellation service
-        CancellationService cancellationService = new CancellationService();
+        // Step 2: Add booking requests
+        bookingQueue.addRequest(new Reservation("Abhi", "Single"));
+        bookingQueue.addRequest(new Reservation("Vanmathi", "Double"));
+        bookingQueue.addRequest(new Reservation("Kural", "Suite"));
+        bookingQueue.addRequest(new Reservation("Subha", "Single"));
 
-        // Step 3: Simulate confirmed booking
-        String reservationId = "Single-1";
-        cancellationService.registerBooking(reservationId, "Single");
+        // Step 3: Create threads
+        Thread t1 = new Thread(
+                new ConcurrentBookingProcessor(
+                        bookingQueue, inventory, allocationService
+                )
+        );
 
-        // Reduce inventory (simulate allocation)
-        int current = inventory.getRoomAvailability().get("Single");
-        inventory.updateAvailability("Single", current - 1);
+        Thread t2 = new Thread(
+                new ConcurrentBookingProcessor(
+                        bookingQueue, inventory, allocationService
+                )
+        );
 
-        // Step 4: Cancel booking
-        cancellationService.cancelBooking(reservationId, inventory);
+        // Step 4: Start threads
+        t1.start();
+        t2.start();
 
-        // Step 5: Show rollback history
-        cancellationService.showRollbackHistory();
+        // Step 5: Wait for completion
+        try {
+            t1.join();
+            t2.join();
+        } catch (InterruptedException e) {
+            System.out.println("Thread execution interrupted.");
+        }
 
-        // Step 6: Display updated inventory
+        // Step 6: Display remaining inventory
         System.out.println();
-        System.out.println("Updated Single Room Availability: " +
+        System.out.println("Remaining Inventory:");
+
+        System.out.println("Single: " +
                 inventory.getRoomAvailability().get("Single"));
+        System.out.println("Double: " +
+                inventory.getRoomAvailability().get("Double"));
+        System.out.println("Suite: " +
+                inventory.getRoomAvailability().get("Suite"));
     }
 }
