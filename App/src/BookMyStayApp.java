@@ -1,55 +1,44 @@
 /**
  * ============================================================
- * MAIN CLASS - UseCase5BookingRequestQueue
+ * MAIN CLASS - UseCase6RoomAllocation
  * ============================================================
  *
- * Use Case 5: Booking Request (First-Come-First-Served)
+ * Use Case 6: Reservation Confirmation & Room Allocation
  *
  * Description:
  * This class demonstrates how booking
- * requests are accepted and queued
- * in a fair and predictable order.
+ * requests are confirmed and rooms
+ * are allocated safely.
  *
- * No room allocation or inventory
- * update is performed here.
+ * It consumes booking requests in FIFO
+ * order and updates inventory immediately.
  *
- * @version 5.0
+ * @version 6.0
  */
 public class BookMyStayApp {
 
-    /**
-     * Application entry point.
-     *
-     * @param args Command-line arguments
-     */
     public static void main(String[] args) {
 
-        // Display application header
-        System.out.println("Booking Request Queue");
+        System.out.println("Room Allocation Processing");
 
-        // Initialize booking queue
-        BookingRequestQueue bookingQueue = new BookingRequestQueue();
+        // Step 1: Initialize inventory
+        RoomInventory inventory = new RoomInventory();
 
-        // Create booking requests
-        Reservation r1 = new Reservation("Abhi", "Single");
-        Reservation r2 = new Reservation("Subha", "Double");
-        Reservation r3 = new Reservation("Vanmathi", "Suite");
+        // Step 2: Initialize queue
+        BookingRequestQueue queue = new BookingRequestQueue();
 
-        // Add requests to the queue
-        bookingQueue.addRequest(r1);
-        bookingQueue.addRequest(r2);
-        bookingQueue.addRequest(r3);
+        // Step 3: Add booking requests
+        queue.addRequest(new Reservation("Abhi", "Single"));
+        queue.addRequest(new Reservation("Subha", "Single"));
+        queue.addRequest(new Reservation("Vanmathi", "Suite"));
 
-        // Process requests in FIFO order
-        while (bookingQueue.hasPendingRequests()) {
-            Reservation request = bookingQueue.getNextRequest();
+        // Step 4: Allocation service
+        RoomAllocationService allocationService = new RoomAllocationService();
 
-            System.out.println(
-                    "Processing booking for Guest: " +
-                            request.getGuestName() +
-                            ", Room Type: " +
-                            request.getRoomType()
-            );
+        // Step 5: Process queue (FIFO)
+        while (queue.hasPendingRequests()) {
+            Reservation request = queue.getNextRequest();
+            allocationService.allocateRoom(request, inventory);
         }
     }
 }
