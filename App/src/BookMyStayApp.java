@@ -1,62 +1,48 @@
 /**
  * ============================================================
- * MAIN CLASS - UseCase9ErrorHandlingValidation
+ * MAIN CLASS - UseCase10BookingCancellation
  * ============================================================
  *
- * Use Case 9: Error Handling & Validation
+ * Use Case 10: Booking Cancellation & Inventory Rollback
  *
  * Description:
- * This class demonstrates how user input
- * is validated before booking is processed.
+ * This class demonstrates how confirmed
+ * bookings can be cancelled safely.
  *
- * The system:
- * - Accepts user input
- * - Validates input centrally
- * - Handles errors gracefully
+ * Inventory is restored and rollback
+ * history is maintained.
  *
- * @version 9.0
+ * @version 10.0
  */
-
-import java.util.Scanner;
-
 public class BookMyStayApp {
 
     public static void main(String[] args) {
 
-        // Display application header
-        System.out.println("Booking Validation");
+        System.out.println("Booking Cancellation");
 
-        Scanner scanner = new Scanner(System.in);
-
-        // Initialize components
+        // Step 1: Initialize inventory
         RoomInventory inventory = new RoomInventory();
-        ReservationValidator validator = new ReservationValidator();
-        BookingRequestQueue bookingQueue = new BookingRequestQueue();
 
-        try {
-            // Take user input
-            System.out.print("Enter Guest Name: ");
-            String guestName = scanner.nextLine();
+        // Step 2: Initialize cancellation service
+        CancellationService cancellationService = new CancellationService();
 
-            System.out.print("Enter Room Type (Single/Double/Suite): ");
-            String roomType = scanner.nextLine();
+        // Step 3: Simulate confirmed booking
+        String reservationId = "Single-1";
+        cancellationService.registerBooking(reservationId, "Single");
 
-            // Validate input
-            validator.validate(guestName, roomType, inventory);
+        // Reduce inventory (simulate allocation)
+        int current = inventory.getRoomAvailability().get("Single");
+        inventory.updateAvailability("Single", current - 1);
 
-            // If valid → create booking request
-            Reservation reservation = new Reservation(guestName, roomType);
-            bookingQueue.addRequest(reservation);
+        // Step 4: Cancel booking
+        cancellationService.cancelBooking(reservationId, inventory);
 
-            System.out.println("Booking request added successfully!");
+        // Step 5: Show rollback history
+        cancellationService.showRollbackHistory();
 
-        } catch (InvalidBookingException e) {
-
-            // Handle validation errors
-            System.out.println("Booking failed: " + e.getMessage());
-
-        } finally {
-            scanner.close();
-        }
+        // Step 6: Display updated inventory
+        System.out.println();
+        System.out.println("Updated Single Room Availability: " +
+                inventory.getRoomAvailability().get("Single"));
     }
 }
