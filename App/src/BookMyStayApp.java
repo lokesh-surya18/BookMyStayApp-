@@ -1,64 +1,36 @@
 /**
  * ============================================================
- * MAIN CLASS - UseCase11ConcurrentBookingSimulation
+ * MAIN CLASS - UseCase12DataPersistenceRecovery
  * ============================================================
  *
- * Use Case 11: Concurrent Booking Simulation
+ * Use Case 12: Data Persistence & System Recovery
  *
  * Description:
- * Simulates multiple users attempting to
- * book rooms at the same time.
+ * Demonstrates how system state can be
+ * restored after an application restart.
  *
- * Demonstrates how synchronization prevents
- * inconsistent allocations.
- *
- * @version 11.0
+ * @version 12.0
  */
 public class BookMyStayApp {
 
     public static void main(String[] args) {
 
-        System.out.println("Concurrent Booking Simulation");
+        System.out.println("System Recovery");
 
-        // Step 1: Shared resources
+        String filePath = "inventory.txt";
+
+        // Step 1: Initialize inventory
         RoomInventory inventory = new RoomInventory();
-        BookingRequestQueue bookingQueue = new BookingRequestQueue();
-        RoomAllocationService allocationService = new RoomAllocationService();
 
-        // Step 2: Add booking requests
-        bookingQueue.addRequest(new Reservation("Abhi", "Single"));
-        bookingQueue.addRequest(new Reservation("Vanmathi", "Double"));
-        bookingQueue.addRequest(new Reservation("Kural", "Suite"));
-        bookingQueue.addRequest(new Reservation("Subha", "Single"));
+        // Step 2: Persistence service
+        FilePersistenceService persistenceService = new FilePersistenceService();
 
-        // Step 3: Create threads
-        Thread t1 = new Thread(
-                new ConcurrentBookingProcessor(
-                        bookingQueue, inventory, allocationService
-                )
-        );
+        // Step 3: Load existing data (if any)
+        persistenceService.loadInventory(inventory, filePath);
 
-        Thread t2 = new Thread(
-                new ConcurrentBookingProcessor(
-                        bookingQueue, inventory, allocationService
-                )
-        );
-
-        // Step 4: Start threads
-        t1.start();
-        t2.start();
-
-        // Step 5: Wait for completion
-        try {
-            t1.join();
-            t2.join();
-        } catch (InterruptedException e) {
-            System.out.println("Thread execution interrupted.");
-        }
-
-        // Step 6: Display remaining inventory
+        // Step 4: Display current inventory
         System.out.println();
-        System.out.println("Remaining Inventory:");
+        System.out.println("Current Inventory:");
 
         System.out.println("Single: " +
                 inventory.getRoomAvailability().get("Single"));
@@ -66,5 +38,8 @@ public class BookMyStayApp {
                 inventory.getRoomAvailability().get("Double"));
         System.out.println("Suite: " +
                 inventory.getRoomAvailability().get("Suite"));
+
+        // Step 5: Save inventory state
+        persistenceService.saveInventory(inventory, filePath);
     }
 }
