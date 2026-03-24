@@ -1,44 +1,45 @@
 /**
  * ============================================================
- * MAIN CLASS - UseCase6RoomAllocation
+ * MAIN CLASS - UseCase7AddOnServiceSelection
  * ============================================================
  *
- * Use Case 6: Reservation Confirmation & Room Allocation
+ * Use Case 7: Add-On Service Selection
  *
  * Description:
- * This class demonstrates how booking
- * requests are confirmed and rooms
- * are allocated safely.
+ * This class demonstrates how optional
+ * services can be attached to a confirmed
+ * booking.
  *
- * It consumes booking requests in FIFO
- * order and updates inventory immediately.
+ * Services are added after room allocation
+ * and do not affect inventory.
  *
- * @version 6.0
+ * @version 7.0
  */
 public class BookMyStayApp {
 
     public static void main(String[] args) {
 
-        System.out.println("Room Allocation Processing");
+        System.out.println("Add-On Service Selection");
 
-        // Step 1: Initialize inventory
-        RoomInventory inventory = new RoomInventory();
+        // Example reservation ID (from previous use case)
+        String reservationId = "Single-1";
 
-        // Step 2: Initialize queue
-        BookingRequestQueue queue = new BookingRequestQueue();
+        // Initialize service manager
+        AddOnServiceManager serviceManager = new AddOnServiceManager();
 
-        // Step 3: Add booking requests
-        queue.addRequest(new Reservation("Abhi", "Single"));
-        queue.addRequest(new Reservation("Subha", "Single"));
-        queue.addRequest(new Reservation("Vanmathi", "Suite"));
+        // Create services
+        AddOnService breakfast = new AddOnService("Breakfast", 500.0);
+        AddOnService spa = new AddOnService("Spa", 1000.0);
 
-        // Step 4: Allocation service
-        RoomAllocationService allocationService = new RoomAllocationService();
+        // Attach services
+        serviceManager.addService(reservationId, breakfast);
+        serviceManager.addService(reservationId, spa);
 
-        // Step 5: Process queue (FIFO)
-        while (queue.hasPendingRequests()) {
-            Reservation request = queue.getNextRequest();
-            allocationService.allocateRoom(request, inventory);
-        }
+        // Calculate total cost
+        double totalCost = serviceManager.calculateTotalServiceCost(reservationId);
+
+        // Output
+        System.out.println("Reservation ID: " + reservationId);
+        System.out.println("Total Add-On Cost: " + totalCost);
     }
 }
